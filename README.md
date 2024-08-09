@@ -1,13 +1,31 @@
 # pdrace for docker
 
-For information about each service check their individual readme. 
+## About pdRace
 
-## About the images:
+![Alt text](client/image-1.png)
 
-### Building it: 
+pdRace is a FullStack application created by some Datadog's TSEs to connect and test Datadog features in a real and fun environment.
+
+The logic behind this is to create a weekly "Tse Pods Race" in which the Players (TSEs) will collect points to their Pods (Specs) with Events.
+
+These Events are day to day actions with points associated to them, example:
+
+- Receive a flare = 5 pts
+- Finishing a call = 10 pts
+- Collaborate = 10 pts
+- Run a workshop = 50 pts
+- Bring cookies to the team = 1 billions pts
+
+### Services involved: 
+
+- **pdclient** Frontend services which use nextjs (app router) [more info here:](client/README.md)
+- **pdServer** Backend service build in Ruby on Rails that serves as API for the frontend to provide the info from the Users, Pods, and Events  [more info here:](server/README.md)
+- **pdPostgres** Postgres Database that stores pdServer model data
+- **pdZendesk** Message broker service build in go that mimics zendesk's behavior by using RabbitMQ as Queue to provide random Events associated to Random Users. [more info here:](zendesk/README.md)
+
+### Building the services images: 
 
 ---
-
 
 Architecture considerations :warning:
 
