@@ -1,0 +1,8 @@
+FROM golang:1.21.3-alpine AS builder
+WORKDIR /zendesk
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN cd cmd/zd && go build -o build/zd -buildvcs=false
+ENV $(cat env)
+CMD ["./cmd/zd/build/zd"]

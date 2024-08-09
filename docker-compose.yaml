@@ -1,0 +1,107 @@
+version: "3.8"
+
+services:
+
+  # Client service
+  pdclient:
+    image: ccdaniele/pdrace-client:docker-v1-arm64
+    ports:
+      - "3002:3002"
+    hostname: pdclient
+    networks:
+      pdnetwork: 
+          aliases:
+            - pdclient
+    depends_on:
+      - pdserver
+
+  # Server service
+  pdserver:
+    image: ccdaniele/pdrace-server:docker-v1-arm64
+    command: sh -c "sleep 5 && bin/rake sneakers:run"
+    environment:
+      DB_HOST: db
+      DB_NAME: pdrace
+      DB_USERNAME: pdrace
+      DB_PASSWORD: password    
+    ports:
+      - "3000:3000"
+    networks:
+      - pdnetwork
+    hostname: pdserver
+    depends_on:
+      - db
+    volumes:
+      - shared_data:/shared_data
+# postgres service 
+  db:
+    image: ccdaniele/pdrace-postgres:docker-v1-arm64
+    container_name: pdpostgres
+    command: "postgres -c 'max_connections=500'"
+    environment:
+      POSTGRES_DB: pdrace
+      POSTGRES_USER: pdrace
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    networks:
+      - pdnetwork
+    volumes:
+      - shared_data:/shared_data
+
+
+  #Queue service 
+  queue:
+    image: ccdaniele/pdrace-queue:docker-v1-arm64
+    container_name: pdqueue
+    environment:
+      ENV: development
+      USER_SRV_DOMAIN: pdserver
+      USER_SRV_PORT: 3000
+      RMQ_USER: guest
+      RMQ_PASS: guest
+      RMQ_DOMAIN: rabbitmq
+      RMQ_PORT: 5672
+      REDIS_DOMAIN: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASS: ""
+    networks:
+      - pdnetwork
+    depends_on:
+      - event-broker
+
+  #rabbitmq 
+  event-broker:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    env_file: env
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - pdnetwork
+
+
+  # Cache service 
+  cache:
+    container_name: redis
+    image: redis:7.2.4
+    ports:
+      - "6379:6379"
+    networks:
+      - pdnetwork
+  
+  cache-dashboard:
+    container_name: insight
+    image: redislabs/redisinsight
+    ports:
+      - "8001:8001"
+    networks:
+      - pdnetwork
+
+networks:
+  pdnetwork: {}
+
+volumes:
+  shared_data: {}
