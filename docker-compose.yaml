@@ -1,26 +1,42 @@
+version: "3.8"
+
 services:
+
   # Client service
   pdclient:
+    container_name: pdclient    
     image: ccdaniele/pdrace-client:docker-v1-arm64
     ports:
       - "3002:3002"
     hostname: pdclient
+    labels:
+        com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "pdclient"}]'    
+    environment:
+      SERVER_HOST: pdserver
+      RABBITMQ_CREDS: amqp://guest:guest@rabbitmq:5672
+      DD_SERVICE: pdclient
+      DD_VERSION: v1
     networks:
-      pdnetwork:
-        aliases:
-          - pdclient
+      pdnetwork: 
+          aliases:
+            - pdclient
     depends_on:
       - pdserver
 
   # Server service
   pdserver:
+    container_name: pdserver    
     image: ccdaniele/pdrace-server:docker-v1-arm64
     command: sh -c "sleep 5 && bin/rake sneakers:run"
+    labels:
+        com.datadoghq.ad.logs: '[{"source": "ruby", "service": "pdserver"}]'  
     environment:
       DB_HOST: db
       DB_NAME: pdrace
       DB_USERNAME: pdrace
       DB_PASSWORD: password
+      DD_SERVICE: pdserver
+      DD_VERSION: v1    
     ports:
       - "3000:3000"
     networks:
@@ -30,26 +46,35 @@ services:
       - db
     volumes:
       - shared_data:/shared_data
-  # postgres service
+# postgres service 
   db:
     image: ccdaniele/pdrace-postgres:docker-v1-arm64
     container_name: pdpostgres
     command: "postgres -c 'max_connections=500'"
+    labels:
+        com.datadoghq.ad.logs: '[{"source": "postgres", "service": "pdserver", "tags:{"component:postgresdb"}}]'  
     environment:
       POSTGRES_DB: pdrace
       POSTGRES_USER: pdrace
       POSTGRES_PASSWORD: password
+      DD_SERVICE: pdserver
+      DD_VERSION: v1  
     ports:
       - "5432:5432"
     networks:
-      - pdnetwork
+      pdnetwork: 
+          aliases:
+            - pdserver
     volumes:
       - shared_data:/shared_data
 
-  #Queue service
-  queue:
-    image: aldrickdev/zd_test:v0
+
+  #Queue service 
+  zendesk:
+    image: ccdaniele/pdrace-queue:docker-v1-arm64
     container_name: pdqueue
+    labels:
+        com.datadoghq.ad.logs: '[{"source": "go", "service": "pdqueue", "tags:{"component:zendesk"}}]'
     environment:
       ENV: development
       USER_SRV_DOMAIN: pdserver
@@ -62,15 +87,20 @@ services:
       REDIS_PORT: 6379
       REDIS_DB: 0
       REDIS_PASS: ""
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1  
     networks:
       - pdnetwork
     depends_on:
       - event-broker
 
-  #rabbitmq
+  #rabbitmq 
   event-broker:
     container_name: rabbitmq
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management   
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1     
     env_file: env
     ports:
       - "5672:5672"
@@ -78,22 +108,58 @@ services:
     networks:
       - pdnetwork
 
-  # Cache service
+
+  # Cache service 
   cache:
     container_name: redis
     image: redis:7.2.4
     ports:
       - "6379:6379"
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1
     networks:
       - pdnetwork
-
+  
   cache-dashboard:
     container_name: insight
     image: redislabs/redisinsight
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1
     ports:
       - "8001:8001"
     networks:
-      - pdnetwork
+      - pdnetwork 
+
+  # datadog:
+  #   container_name: datadog  
+  #   image: "datadog/agent:latest"
+  #   environment:
+  #     - DD_SYSTEM_PROBE_NETWORK_ENABLED=true
+  #     - DD_PROCESS_AGENT_ENABLED=true
+  #     - DD_API_KEY=${DD_API_KEY} \
+  #     - DD_LOGS_ENABLED=true \
+  #     - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true \
+  #     - DD_LOGS_CONFIG_DOCKER_CONTAINER_USE_FILE=true \
+  #   volumes:
+  #     - /opt/datadog-agent/run:/opt/datadog-agent/run:rw
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - /proc/:/host/proc/:ro
+  #     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+  #     - /sys/kernel/debug:/sys/kernel/debug
+  #   cap_add:
+  #     - SYS_ADMIN
+  #     - SYS_RESOURCE
+  #     - SYS_PTRACE
+  #     - NET_ADMIN
+  #     - NET_BROADCAST
+  #     - NET_RAW
+  #     - IPC_LOCK
+  #     - CHOWN
+  #   security_opt:
+  #     - apparmor:unconfined
 
 networks:
   pdnetwork: {}

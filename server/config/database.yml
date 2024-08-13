@@ -40,5 +40,5 @@ development:
   pool: 5
   username: pdrace
   password: password
-  host: localhost
+  host: ENV['DB_HOST']
   port: 5432 
