@@ -1,0 +1,12 @@
+docs/
+.DS_Store/
+.air.toml
+.dockerignore
+.env.example
+.gitignore
+LICENSE
+README.md
+service
+start.sh
+Taskfile.yml
+version

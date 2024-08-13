@@ -32,12 +32,14 @@ func main() {
 		utils.Env.RMQ_PORT,
 	)
 	rbConnected := false
+
+	// Loop to try to connect to RabbitMQ because this service usuallly starts up before the RabbitMQ service
 	for {
 		if !rbConnected {
 			time.Sleep(5 * time.Second)
 			err := rabbitMQ.Connect(rmqConnectionString)
 			if err != nil {
-				log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+				log.Printf("Failed to connect to RabbitMQ: %v", err)
 				continue
 			}
 			rbConnected = true
@@ -47,7 +49,7 @@ func main() {
 
 	err := rabbitMQ.DeclareExchange("zendesk", "topic")
 	if err != nil {
-		log.Fatalf("Failed to decalre an exchange: %v", err)
+		log.Fatalf("Failed to declare an exchange: %v", err)
 	}
 
 	// Creates the 2 routes that gets events from the exchange ==
