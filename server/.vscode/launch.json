@@ -10,7 +10,7 @@
         "script": "${workspaceFolder}/bin/rails",
         
         "args": [
-          "server"
+          "server -b 0.0.0.0 "
         ],
         "askParameters": true
       },
@@ -21,11 +21,5 @@
       }
       
   ],
-  "compounds": [
-    {
-      "name": "Debug Next.js / Chrome",
-      "configurations": ["Launch Server", "Launch Chrome"]
-    }
-  ]
 }
     

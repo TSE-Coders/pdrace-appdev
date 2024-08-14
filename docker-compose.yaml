@@ -23,11 +23,11 @@ services:
   # Server service
   pdserver:
     container_name: pdserver    
-    image: ccdaniele/pdrace-server:QA
+    image: ccdaniele/pdrace-server:docker-v1-arm64-env
     labels:
       app: pdrace
       com.datadoghq.ad.logs: '[{"source": "ruby", "service": "pdserver"}]'
-    command: sh -c "sleep 5 && bin/rake sneakers:run" 
+    # command: sh -c "sleep 10 && bin/rake sneakers:run" 
     environment:
       ENV: development
       RUBY_DEBUG_OPEN: true
