@@ -25,6 +25,7 @@ services:
     # command: sh -c "sleep 5 && bin/rake sneakers:run" 
     environment:
       ENV: development
+      RUBY_DEBUG_OPEN: true
       DB_DOMAIN: db
       DD_SERVICE: pdserver
       DD_TRACE_PORT: 8126
@@ -63,64 +64,64 @@ services:
       - shared_data:/shared_data
 
   #Queue service 
-  zendesk:
-    image: aldrickdev/zd_test:v0
-    container_name: pdqueue
-    environment:
-      ENV: development
-      USER_SRV_DOMAIN: pdserver
-      USER_SRV_PORT: 3000
-      RMQ_USER: guest
-      RMQ_PASS: guest
-      RMQ_DOMAIN: rabbitmq
-      RMQ_PORT: 5672
-      REDIS_DOMAIN: redis
-      REDIS_PORT: 6379
-      REDIS_DB: 0
-      REDIS_PASS: ""
-      DD_SERVICE: pdqueue
-      DD_VERSION: v1  
-    networks:
-      - pdnetwork
-    depends_on:
-      - event-broker
+  # zendesk:
+  #   image: aldrickdev/zd_test:v0
+  #   container_name: pdqueue
+  #   environment:
+  #     ENV: development
+  #     USER_SRV_DOMAIN: pdserver
+  #     USER_SRV_PORT: 3000
+  #     RMQ_USER: guest
+  #     RMQ_PASS: guest
+  #     RMQ_DOMAIN: rabbitmq
+  #     RMQ_PORT: 5672
+  #     REDIS_DOMAIN: redis
+  #     REDIS_PORT: 6379
+  #     REDIS_DB: 0
+  #     REDIS_PASS: ""
+  #     DD_SERVICE: pdqueue
+  #     DD_VERSION: v1  
+  #   networks:
+  #     - pdnetwork
+  #   depends_on:
+  #     - event-broker
 
-  #rabbitmq 
-  event-broker:
-    container_name: rabbitmq
-    image: rabbitmq:3-management   
-    environment:
-      DD_SERVICE: pdqueue
-      DD_VERSION: v1     
-    env_file: env
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      - pdnetwork
+  # #rabbitmq 
+  # event-broker:
+  #   container_name: rabbitmq
+  #   image: rabbitmq:3-management   
+  #   environment:
+  #     DD_SERVICE: pdqueue
+  #     DD_VERSION: v1     
+  #   env_file: env
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   networks:
+  #     - pdnetwork
 
-  # Cache service 
-  cache:
-    container_name: redis
-    image: redis:7.2.4
-    ports:
-      - "6379:6379"
-    environment:
-      DD_SERVICE: pdqueue
-      DD_VERSION: v1
-    networks:
-      - pdnetwork
+  # # Cache service 
+  # cache:
+  #   container_name: redis
+  #   image: redis:7.2.4
+  #   ports:
+  #     - "6379:6379"
+  #   environment:
+  #     DD_SERVICE: pdqueue
+  #     DD_VERSION: v1
+  #   networks:
+  #     - pdnetwork
   
-  cache-dashboard:
-    container_name: insight
-    image: redislabs/redisinsight
-    environment:
-      DD_SERVICE: pdqueue
-      DD_VERSION: v1
-    ports:
-      - "8001:8001"
-    networks:
-      - pdnetwork 
+  # cache-dashboard:
+  #   container_name: insight
+  #   image: redislabs/redisinsight
+  #   environment:
+  #     DD_SERVICE: pdqueue
+  #     DD_VERSION: v1
+  #   ports:
+  #     - "8001:8001"
+  #   networks:
+  #     - pdnetwork 
 
 volumes:
   shared_data: {}

@@ -31,3 +31,5 @@ tmp/
 .env
 env
 build/
+client/node_modules
+client/.next

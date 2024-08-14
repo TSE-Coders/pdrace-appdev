@@ -3,6 +3,6 @@ WORKDIR /pd-user-api
 COPY . . 
 ENV BUNDLE_PATH=/gems
 RUN bundle install
-RUN chmod +x /pd-user-api/start.sh
+# RUN chmod +x /pd-user-api/start.sh
 EXPOSE 3000
-CMD ["/pd-user-api/start.sh"]
+# CMD ["/pd-user-api/start.sh"]

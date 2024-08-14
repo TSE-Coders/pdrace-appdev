@@ -2,7 +2,7 @@
 FROM node:18
 WORKDIR /pd-client-service
 COPY package*.json ./
-RUN npm install
+# RUN npm install
 COPY . . 
 EXPOSE 3002
-CMD npm run dev
+# CMD npm run dev
