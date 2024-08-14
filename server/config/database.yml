@@ -34,11 +34,11 @@
 ### This section is for postgres in k8s --- Remember install the gem pg 
 
 development:
-  adapter: <%= ENV['DB_ADAPTER'] %>
+  adapter: postgresql
   encoding: unicode
-  database: <%= ENV['DB_NAME'] %>
+  database: pdrace
   pool: 5
-  username: <%= ENV['DB_USERNAME'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
+  username: pdrace 
+  password: password
   host: <%= ENV['DB_DOMAIN'] %>
-  port: <%= ENV['DB_PORT'] %>
+  port: 5432 
