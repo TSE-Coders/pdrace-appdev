@@ -4,5 +4,6 @@ WORKDIR /pd-client-service
 COPY package*.json ./
 # RUN npm install
 COPY . . 
+RUN apt update && apt install dnsutils
 EXPOSE 3002
 CMD sh -c "sleep 500000"

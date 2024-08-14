@@ -1,12 +1,16 @@
+version: '3.8'
+
 services:
 
   # Client service
   pdclient:
     container_name: pdclient    
-    image: ccdaniele/pdrace-client:QA
+    image: ccdaniele/pdrace-client:docker-v1-arm64-env
+    labels:
+      app: pdrace
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "pdclient"}]'
     ports:
       - "3002:3002"
-    hostname: pdclient   
     environment:
       ENV: development
       SERVER_HOST: pdserver:3000
@@ -14,15 +18,16 @@ services:
       DD_SERVICE: pdclient
       DD_VERSION: v1
     networks:
-      - pdnetwork
-    depends_on:
-      - pdserver
+      - pdrace-network
 
   # Server service
   pdserver:
     container_name: pdserver    
     image: ccdaniele/pdrace-server:QA
-    # command: sh -c "sleep 5 && bin/rake sneakers:run" 
+    labels:
+      app: pdrace
+      com.datadoghq.ad.logs: '[{"source": "ruby", "service": "pdserver"}]'
+    command: sh -c "sleep 5 && bin/rake sneakers:run" 
     environment:
       ENV: development
       RUBY_DEBUG_OPEN: true
@@ -32,21 +37,20 @@ services:
       CLIENT_DOMAIN: pdclient
       QUEUE_DOMAIN: pdqueue
       RABBITMQ_DOMAIN: rabbitmq
-      DD_VERSION: v1    
-    ports:
-      - "3000:3000"
-    networks:
-      - pdnetwork
-    hostname: pdserver
-    depends_on:
-      - db
+      DD_VERSION: v1  
+      SERVER_HOST: pdserver:3000  
     volumes:
       - shared_data:/shared_data
+    networks:
+      - pdrace-network
 
-# postgres service 
+  # postgres service 
   db:
     image: ccdaniele/pdrace-postgres:docker-v1-arm64
     container_name: pdpostgres
+    labels:
+      app: pdrace
+      com.datadoghq.ad.logs: '[{"source": "postgres", "service": "pdserver"}]'
     command: "postgres -c 'max_connections=500'" 
     environment:
       ENV: development
@@ -55,77 +59,70 @@ services:
       POSTGRES_PASSWORD: password
       DD_SERVICE: pdserver
       DD_VERSION: v1 
-      SERVER_HOST:  
-    ports:
-      - "5432:5432"
-    networks:
-      - pdnetwork
     volumes:
       - shared_data:/shared_data
+    networks:
+      - pdrace-network
 
-  #Queue service 
-  # zendesk:
-  #   image: aldrickdev/zd_test:v0
-  #   container_name: pdqueue
-  #   environment:
-  #     ENV: development
-  #     USER_SRV_DOMAIN: pdserver
-  #     USER_SRV_PORT: 3000
-  #     RMQ_USER: guest
-  #     RMQ_PASS: guest
-  #     RMQ_DOMAIN: rabbitmq
-  #     RMQ_PORT: 5672
-  #     REDIS_DOMAIN: redis
-  #     REDIS_PORT: 6379
-  #     REDIS_DB: 0
-  #     REDIS_PASS: ""
-  #     DD_SERVICE: pdqueue
-  #     DD_VERSION: v1  
-  #   networks:
-  #     - pdnetwork
-  #   depends_on:
-  #     - event-broker
+  # Queue service 
+  zendesk:
+    image: aldrickdev/zd_test:v0
+    container_name: pdqueue
+    environment:
+      ENV: development
+      USER_SRV_DOMAIN: pdserver
+      USER_SRV_PORT: 3000
+      RMQ_USER: guest
+      RMQ_PASS: guest
+      RMQ_DOMAIN: rabbitmq
+      RMQ_PORT: 5672
+      REDIS_DOMAIN: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_PASS: ""
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1  
+    networks:
+      - pdrace-network
+    depends_on:
+      - event-broker
 
-  # #rabbitmq 
-  # event-broker:
-  #   container_name: rabbitmq
-  #   image: rabbitmq:3-management   
-  #   environment:
-  #     DD_SERVICE: pdqueue
-  #     DD_VERSION: v1     
-  #   env_file: env
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
-  #   networks:
-  #     - pdnetwork
+  #rabbitmq 
+  event-broker:
+    container_name: rabbitmq
+    image: rabbitmq:3-management   
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1     
+    env_file: env
+    networks:
+      - pdrace-network
 
-  # # Cache service 
-  # cache:
-  #   container_name: redis
-  #   image: redis:7.2.4
-  #   ports:
-  #     - "6379:6379"
-  #   environment:
-  #     DD_SERVICE: pdqueue
-  #     DD_VERSION: v1
-  #   networks:
-  #     - pdnetwork
+  # Cache service 
+  cache:
+    container_name: redis
+    image: redis:7.2.4
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1
+    networks:
+      - pdrace-network
   
-  # cache-dashboard:
-  #   container_name: insight
-  #   image: redislabs/redisinsight
-  #   environment:
-  #     DD_SERVICE: pdqueue
-  #     DD_VERSION: v1
-  #   ports:
-  #     - "8001:8001"
-  #   networks:
-  #     - pdnetwork 
+  cache-dashboard:
+    container_name: insight
+    image: redislabs/redisinsight
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1
+    ports:
+      - "8001:8001"
+    networks:
+      - pdrace-network 
 
 volumes:
-  shared_data: {}
+  shared_data:
 
 networks:
-  pdnetwork: 
-    name: pdnetwork
+  pdrace-network:
+    name: pdrace-network
+    driver: bridge

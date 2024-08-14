@@ -1,0 +1,31 @@
+
+
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+        "type": "rdbg",
+        "name": "Debug current file with rdbg",
+        "request": "launch",
+        "script": "${workspaceFolder}/bin/rails",
+        
+        "args": [
+          "server"
+        ],
+        "askParameters": true
+      },
+      {
+        "type": "rdbg",
+        "name": "Attach with rdbg",
+        "request": "attach"
+      }
+      
+  ],
+  "compounds": [
+    {
+      "name": "Debug Next.js / Chrome",
+      "configurations": ["Launch Server", "Launch Chrome"]
+    }
+  ]
+}
+    
