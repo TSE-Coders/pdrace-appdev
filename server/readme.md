@@ -102,3 +102,9 @@ docker build --platform=linux/amd64 -t ccdaniele/pdrace-users-api:v1.0_postgres_
 sneakers: https://github.com/jondot/sneakers/wiki/How-To:-Rails-Background-Jobs-with-ActiveJob 
 
 Active jobs: https://guides.rubyonrails.org/active_job_basics.html 
+
+## Dependencies: 
+
+dotenv: https://github.com/bkeepers/dotenv?tab=readme-ov-file#dotenv-
+
+debug: https://github.com/ruby/debug, https://dev.to/st0012/setup-rubydebug-with-vscode-1b7c

@@ -94,3 +94,29 @@ If you confirm that your image is ready it can be used locally, however if you w
 docker push ccdaniele/pdrace-client:docker-v1
 ```
 5. Since dockerhub save the images as private by default make sure you can set its configuration in the repository page so it can be free accessible. 
+
+## Installing the Datadog agent
+
+Run the following script: 
+```
+docker run -d --name datadog-agent \
+           --cgroupns host \
+           --pid host \
+           -e DD_API_KEY=${DD_API_KEY} \
+           -e DD_LOGS_ENABLED=true \
+           -e DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true \
+           -e DD_LOGS_CONFIG_DOCKER_CONTAINER_USE_FILE=true \
+           -v /var/run/docker.sock:/var/run/docker.sock:ro \
+           -v /var/lib/docker/containers:/var/lib/docker/containers:ro \
+           -v /opt/datadog-agent/run:/opt/datadog-agent/run:rw \
+           gcr.io/datadoghq/agent:latest
+
+
+```
+
+## Images available: 
+
+- ccdaniele/pdrace-<service>:docker-v1-arm64 | for mac without domains envvars
+- ccdaniele/pdrace-<service>:docker-v1-arm64-env  | for mac with domains envvars
+
+- ccdaniele/pdrace-<service>:docker-v1-amd64 | for linux without domains envvars

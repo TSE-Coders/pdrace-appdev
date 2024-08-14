@@ -64,18 +64,9 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = false
 
-  config.hosts = [
-    IPAddr.new("0.0.0.0/0"),        # All IPv4 addresses.
-    IPAddr.new("::/0"),             # All IPv6 addresses.
-    "localhost",                    # The localhost reserved domain.
-    "api",
-  
-  ]
 
-  config.host_authorization = {
-  response_app: -> env do
-    [400, { "Content-Type" => "text/plain" }, ["Bad Request"]]
-  end
-  }
+  config.hosts << ENV['SERVER_HOST']
+  
+
 
 end

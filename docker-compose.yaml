@@ -1,53 +1,71 @@
+version: '3.8'
+
 services:
+
   # Client service
   pdclient:
-    image: ccdaniele/pdrace-client:docker-v1-arm64
+    container_name: pdclient    
+    image: ccdaniele/pdrace-client:docker-v1-arm64-env
+    labels:
+      app: pdrace
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "pdclient"}]'
     ports:
       - "3002:3002"
-    hostname: pdclient
+    environment:
+      ENV: development
+      SERVER_HOST: pdserver:3000
+      RABBITMQ_CREDS: amqp://guest:guest@rabbitmq:5672
+      DD_SERVICE: pdclient
+      DD_VERSION: v1
     networks:
-      pdnetwork:
-        aliases:
-          - pdclient
-    depends_on:
-      - pdserver
+      - pdrace-network
 
   # Server service
   pdserver:
-    image: ccdaniele/pdrace-server:docker-v1-arm64
-    command: sh -c "sleep 5 && bin/rake sneakers:run"
+    container_name: pdserver    
+    image: ccdaniele/pdrace-server:docker-v1-arm64-env
+    labels:
+      app: pdrace
+      com.datadoghq.ad.logs: '[{"source": "ruby", "service": "pdserver"}]'
+    # command: sh -c "sleep 10 && bin/rake sneakers:run" 
     environment:
-      DB_HOST: db
-      DB_NAME: pdrace
-      DB_USERNAME: pdrace
-      DB_PASSWORD: password
-    ports:
-      - "3000:3000"
-    networks:
-      - pdnetwork
-    hostname: pdserver
-    depends_on:
-      - db
+      ENV: development
+      RUBY_DEBUG_OPEN: true
+      DB_DOMAIN: db
+      DD_SERVICE: pdserver
+      DD_TRACE_PORT: 8126
+      CLIENT_DOMAIN: pdclient
+      QUEUE_DOMAIN: pdqueue
+      RABBITMQ_DOMAIN: rabbitmq
+      DD_VERSION: v1  
+      SERVER_HOST: pdserver:3000  
     volumes:
       - shared_data:/shared_data
-  # postgres service
+    networks:
+      - pdrace-network
+
+  # postgres service 
   db:
     image: ccdaniele/pdrace-postgres:docker-v1-arm64
     container_name: pdpostgres
-    command: "postgres -c 'max_connections=500'"
+    labels:
+      app: pdrace
+      com.datadoghq.ad.logs: '[{"source": "postgres", "service": "pdserver"}]'
+    command: "postgres -c 'max_connections=500'" 
     environment:
+      ENV: development
       POSTGRES_DB: pdrace
       POSTGRES_USER: pdrace
       POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    networks:
-      - pdnetwork
+      DD_SERVICE: pdserver
+      DD_VERSION: v1 
     volumes:
       - shared_data:/shared_data
+    networks:
+      - pdrace-network
 
-  #Queue service
-  queue:
+  # Queue service 
+  zendesk:
     image: aldrickdev/zd_test:v0
     container_name: pdqueue
     environment:
@@ -62,41 +80,49 @@ services:
       REDIS_PORT: 6379
       REDIS_DB: 0
       REDIS_PASS: ""
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1  
     networks:
-      - pdnetwork
+      - pdrace-network
     depends_on:
       - event-broker
 
-  #rabbitmq
+  #rabbitmq 
   event-broker:
     container_name: rabbitmq
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management   
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1     
     env_file: env
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     networks:
-      - pdnetwork
+      - pdrace-network
 
-  # Cache service
+  # Cache service 
   cache:
     container_name: redis
     image: redis:7.2.4
-    ports:
-      - "6379:6379"
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1
     networks:
-      - pdnetwork
-
+      - pdrace-network
+  
   cache-dashboard:
     container_name: insight
     image: redislabs/redisinsight
+    environment:
+      DD_SERVICE: pdqueue
+      DD_VERSION: v1
     ports:
       - "8001:8001"
     networks:
-      - pdnetwork
-
-networks:
-  pdnetwork: {}
+      - pdrace-network 
 
 volumes:
-  shared_data: {}
+  shared_data:
+
+networks:
+  pdrace-network:
+    name: pdrace-network
+    driver: bridge

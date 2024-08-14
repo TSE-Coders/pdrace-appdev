@@ -38,7 +38,7 @@ development:
   encoding: unicode
   database: pdrace
   pool: 5
-  username: pdrace
+  username: pdrace 
   password: password
-  host: localhost
+  host: <%= ENV['DB_DOMAIN'] %>
   port: 5432 

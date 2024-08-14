@@ -1,8 +1,8 @@
-FROM ruby:3.2.2
-WORKDIR /pd-user-api
+FROM ruby:3.3.4
+WORKDIR /server
 COPY . . 
-ENV BUNDLE_PATH /gems
+ENV BUNDLE_PATH=/gems
 RUN bundle install
-RUN chmod +x /pd-user-api/start.sh
+RUN chmod +x /server/start.sh
 EXPOSE 3000
-CMD ["/pd-user-api/start.sh"]
+CMD ["/server/start.sh"]

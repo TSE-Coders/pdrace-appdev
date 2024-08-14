@@ -1,0 +1,25 @@
+
+
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+        "type": "rdbg",
+        "name": "Debug current file with rdbg",
+        "request": "launch",
+        "script": "${workspaceFolder}/bin/rails",
+        
+        "args": [
+          "server -b 0.0.0.0 "
+        ],
+        "askParameters": true
+      },
+      {
+        "type": "rdbg",
+        "name": "Attach with rdbg",
+        "request": "attach"
+      }
+      
+  ],
+}
+    

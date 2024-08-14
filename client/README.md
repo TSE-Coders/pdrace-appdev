@@ -112,5 +112,6 @@ If you are using VScode, the file **.vscode/launch.json** contains the debug con
 https://daisyui.com
 
 * Mui Material: ```npm install @mui/material @emotion/react @emotion/styled```, ```npm install @mui/icons-material``` 
-https://mui.com/material-ui/getting-started/installation 
+https://mui.com/material-ui/getting-started/installation \
 
+https://docs.docker.com/reference/dockerfile/#dockerignore-file 
