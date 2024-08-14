@@ -64,12 +64,14 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = false
 
+
   config.hosts = [
     IPAddr.new("0.0.0.0/0"),        # All IPv4 addresses.
     IPAddr.new("::/0"),             # All IPv6 addresses.
     "localhost",                    # The localhost reserved domain.
-    ENV['LOCALHOST']                # Environment variable from ../config/app_environment_variables.rb
-  
+    ENV['CLIENT_DOMAIN'],           # Environment variable from ../config/app_environment_variables.rb
+    ENV['QUEUE_DOMAIN'],
+    ENV['RABBITMQ_DOMAIN']
   ]
 
   config.host_authorization = {

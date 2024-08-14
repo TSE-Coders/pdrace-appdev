@@ -113,3 +113,10 @@ docker run -d --name datadog-agent \
 
 
 ```
+
+## Images available: 
+
+- ccdaniele/pdrace-<service>:docker-v1-arm64 | for mac without domains envvars
+- ccdaniele/pdrace-<service>:docker-v1-arm64-env  | for mac with domains envvars
+
+- ccdaniele/pdrace-<service>:docker-v1-amd64 | for linux without domains envvars

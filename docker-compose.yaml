@@ -5,7 +5,7 @@ services:
   # Client service
   pdclient:
     container_name: pdclient    
-    image: ccdaniele/pdrace-client:docker-v1-arm64
+    image: ccdaniele/pdrace-client:docker-v1-arm64-env
     ports:
       - "3002:3002"
     hostname: pdclient
@@ -26,7 +26,7 @@ services:
   # Server service
   pdserver:
     container_name: pdserver    
-    image: ccdaniele/pdrace-server:docker-v1-arm64
+    image: ccdaniele/pdrace-server:docker-v1-arm64-env
     command: sh -c "sleep 5 && bin/rake sneakers:run"
     labels:
         com.datadoghq.ad.logs: '[{"source": "ruby", "service": "pdserver"}]'  
@@ -36,6 +36,11 @@ services:
       DB_USERNAME: pdrace
       DB_PASSWORD: password
       DD_SERVICE: pdserver
+      DB_DOMAIN: pdpostgres
+      CLIENT_DOMAIN: pdclient
+      QUEUE_DOMAIN: pdqueue
+      RABBITMQ_DOMAIN: rabbitmq
+
       DD_VERSION: v1    
     ports:
       - "3000:3000"
@@ -58,7 +63,8 @@ services:
       POSTGRES_USER: pdrace
       POSTGRES_PASSWORD: password
       DD_SERVICE: pdserver
-      DD_VERSION: v1  
+      DD_VERSION: v1 
+      SERVER_HOST:  
     ports:
       - "5432:5432"
     networks:

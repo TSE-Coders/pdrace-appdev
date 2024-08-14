@@ -9,7 +9,7 @@ require 'ddtrace'
 
 Datadog.configure do |c|
 
-  c.agent.port = 8126
+  c.agent.port = ENV['DD_TRACE_PORT']
   c.tracing.instrument :rails
   # c.agent.host = 'datadog-pdrace.default.svc.cluster.local'
 
@@ -18,7 +18,7 @@ Datadog.configure do |c|
   c.version = 'v1.0.0'
 
   c.tracing.report_hostname = false
-  c.profiling.enabled = true
+  c.profiling.enabled = false
   # c.tracing.test_mode.enabled = (ENV['RACK_ENV'] == 'dev')
 
 ###Correlating DB and traces
