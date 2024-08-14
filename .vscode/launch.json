@@ -19,7 +19,23 @@
         "command": "npm run dev",
         "cwd":"${workspaceFolder}/client",
         "sourceMaps": false
+      },                {
+        "type": "rdbg",
+        "name": "Debug current file with rdbg",
+        "request": "launch",
+        "script": "${workspaceFolder}/server/bin/rails",
+        
+        "args": [
+          "server"
+        ],
+        "askParameters": true
       },
+      {
+        "type": "rdbg",
+        "name": "Attach with rdbg",
+        "request": "attach"
+      }
+      
   ],
   "compounds": [
     {

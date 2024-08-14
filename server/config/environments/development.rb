@@ -66,17 +66,20 @@ Rails.application.configure do
 
 
   config.hosts = [
+    
     IPAddr.new("0.0.0.0/0"),        # All IPv4 addresses.
     IPAddr.new("::/0"),             # All IPv6 addresses.
     "localhost",                    # The localhost reserved domain.
     ENV['CLIENT_DOMAIN'],           # Environment variable from ../config/app_environment_variables.rb
     ENV['QUEUE_DOMAIN'],
     ENV['RABBITMQ_DOMAIN']
+    
+    
   ]
-
+ 
   config.host_authorization = {
   response_app: -> env do
-    [400, { "Content-Type" => "text/plain" }, ["Bad Request"]]
+    [400, { "Content-Type" => "text/plain" }, ["Bad Request", ]]
   end
   }
 

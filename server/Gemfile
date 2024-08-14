@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.2.2"
+ruby "3.3.4"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.1"
@@ -62,7 +62,7 @@ group :development do
 
 gem 'lograge'
 
-gem 'ddtrace', '1.22', require: 'ddtrace/auto_instrument'
+# gem 'ddtrace', '1.22', require: 'ddtrace/auto_instrument'
 
 # gem "dogstatsd-ruby"
 
@@ -87,8 +87,6 @@ gem 'sneakers'
 ### https://github.com/brandonhilkert/sucker_punch
 
 # gem 'sucker_punch', '~> 3.0'
-
-gem 'byebug'
 
 gem 'json', '~> 2.7', '>= 2.7.1'
 
