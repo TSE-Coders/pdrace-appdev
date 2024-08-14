@@ -35,8 +35,11 @@ services:
       DB_NAME: pdrace
       DB_USERNAME: pdrace
       DB_PASSWORD: password
-      DD_SERVICE: pdserver
+      DB_PORT: 5432
       DB_DOMAIN: pdpostgres
+      DB_ADAPTER: postgresql
+      DD_SERVICE: pdserver
+      DD_TRACE_PORT: 8126
       CLIENT_DOMAIN: pdclient
       QUEUE_DOMAIN: pdqueue
       RABBITMQ_DOMAIN: rabbitmq
@@ -77,7 +80,7 @@ services:
 
   #Queue service 
   zendesk:
-    image: ccdaniele/pdrace-queue:docker-v1-arm64
+    image: aldrickdev/zd_test:v0
     container_name: pdqueue
     labels:
         com.datadoghq.ad.logs: '[{"source": "go", "service": "pdqueue", "tags:{"component:zendesk"}}]'
