@@ -1,0 +1,9 @@
+# dev
+FROM node:18
+WORKDIR /client
+COPY package*.json ./
+RUN npm install
+COPY . . 
+EXPOSE 3002
+# CMD npm run dev
+CMD sh -c "sleep 500000"

@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pdserver-migrate
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: server-migrate
+          image: ccdaniele/pdrace-server:v2a-amd64
+          # command: ["sh", "-c", "echo Container 1 has started after the wait! && sleep 3600"]
+          command: ['bin/rails']
+          args: ['db:migrate']
+          volumeMounts:
+            - mountPath: /back
+              name: server-volume
+          env:
+          - name: SERVER_HOST 
+            value: pdserver-svc.default.svc.cluster.local:3000
+          - name: DB_DOMAIN
+            value: postgresdb-svc.default.svc.cluster.local
+      volumes:
+      - name: server-volume
+        emptyDir:
+          sizeLimit: 100000Mi

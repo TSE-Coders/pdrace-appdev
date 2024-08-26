@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pdserver-seed
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: server-seed
+          image: ccdaniele/pdrace-server:v2a-amd64
+          command: ['bin/rails']
+          args: ['db:seed']
+          volumeMounts:
+            - mountPath: /back
+              name: server-volume
+          env:
+          - name: SERVER_HOST 
+            value: pdserver-svc.default.svc.cluster.local:3000
+          - name: DB_DOMAIN
+            value: postgresdb-svc.default.svc.cluster.local
+      volumes:
+      - name: server-volume
+        emptyDir:
+          sizeLimit: 100000Mi

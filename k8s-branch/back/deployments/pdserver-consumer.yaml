@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "pdserver-consumer"
+  labels:
+    name: "consumer"
+    version: "v1"
+    app: pdrace
+    pdcomponent: consumer
+spec:
+  selector:
+    matchLabels:
+      app: "consumer-pod"
+      service: "pdserver-consumer"
+  replicas: 1
+  template:
+    metadata:
+      name: "consumer"
+      labels:
+        app: "consumer-pod"
+        service: "pdserver-consumer"
+        env: "kubernetes"
+        pdcomponent: backend
+      annotations:
+       DD_SERVICE: pdserver-consumer    
+
+    spec:
+      containers:
+        - name: server-consumer
+          image: ccdaniele/pdrace-server:v2a-amd64
+          imagePullPolicy: Always
+          command: ['bin/rake']
+          args: ['sneakers:run' ]
+          ports:
+            - name: server-port
+              containerPort: 3000
+          volumeMounts:
+            - mountPath: /back
+              name: server-volume
+          env:
+          - name: SERVER_HOST 
+            value: pdserver-svc.default.svc.cluster.local:3000
+          - name: DB_DOMAIN
+            value: postgresdb-svc.default.svc.cluster.local
+      volumes:
+      - name: server-volume
+        emptyDir:
+          sizeLimit: 100000Mi
+        
