@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "pdclient"
+  labels:
+    name: "pdclient"
+    app: "pdrace"
+
+spec:
+  selector:
+    matchLabels:
+      service: "pdclient"
+  replicas: 1
+  template:
+    metadata:
+      name: "pdclient"
+      labels:
+        service: "pdclient"
+      annotations: 
+        prometheus.io/scrape: "true"
+        DD_SERVICE: pdclient
+
+    spec:
+      containers:
+        # next js client container
+        - name: pdclient
+          image: ccdaniele/pdrace-client:qa-amd64
+          imagePullPolicy: Always
+          ports:
+            - name: client-port
+              containerPort: 3002
+          # resources:
+          #   limits:
+          #     cpu: "10Gi"
+          #     memory: "10Gi"
+          env:
+            - name: SERVER_HOST
+              value: pdserver-svc.default.svc.cluster.local:3000
+            - name: RABBITMQ_CREDS
+              value: amqp://guest:guest@rabbitmq:5672
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP    
+
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdclient-svc
+spec:
+  type: "NodePort"
+  selector:
+    service: "pdclient"
+  ports:
+  - port: 3002
+    targetPort: client-port

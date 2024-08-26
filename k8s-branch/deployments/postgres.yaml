@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb
+  labels:
+    name: postgresdb
+    version: v1
+    app: pdrace
+    pdcomponent: backend
+
+spec:
+  selector:
+    matchLabels:
+      service: postgresdb
+  replicas: 1
+  template:
+    metadata:
+      name: postgresdb
+      labels:
+        service: postgresdb
+        pdcomponent: backend
+      annotations: 
+        prometheus.io/scrape: "true"
+        DD_SERVICE: postgresdb 
+    spec:
+      containers:
+        - name: postgresdb
+          image: ccdaniele/pdrace-postgres:docker-v1-arm64
+          imagePullPolicy: Always
+          ports:
+            - name: db-port
+              containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/
+              name: server-volume
+              subPath: data
+          env: 
+            - name: PGDATA
+              value: /var/lib/postgresql/data
+            - name: POSTGRES_USER
+              value: pdrace
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_DB
+              value: pdrace
+            - name: DD_TAGS
+              value: env:kubernetes
+      volumes:
+      - name: server-volume
+        persistentVolumeClaim:
+          claimName: server-pvclaim 
+        
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresdb-svc
+spec:
+  selector:
+    service: "postgresdb"
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: db-port

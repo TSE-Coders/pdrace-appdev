@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "pdserver"
+  labels:
+    name: "pdserver"
+    version: "v1"
+    app: pdrace
+    pdcomponent: backend
+spec:
+  selector:
+    matchLabels:
+      app: "pdserver-pod"
+      service: "pdserver"
+  replicas: 1
+  template:
+    metadata:
+      name: "pdserver"
+      labels:
+        app: "pdserver-pod"
+        service: "pdserver"
+        env: "kubernetes"
+        pdcomponent: backend
+      annotations:
+       DD_SERVICE: pdserver    
+
+    spec:
+      containers:
+        - name: pdserver
+          image: ccdaniele/pdrace-server:v1-amd64
+          imagePullPolicy: Always
+          ports:
+            - name: server-port
+              containerPort: 3000
+          volumeMounts:
+            - mountPath: /back
+              name: server-volume
+          env:
+          - name: SERVER_HOST 
+            value: pdserver-svc.default.svc.cluster.local:3000
+          - name: DB_DOMAIN
+            value: postgresdb-svc.default.svc.cluster.local
+      volumes:
+      - name: server-volume
+        emptyDir:
+          sizeLimit: 100000Mi
+        
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdserver-svc
+spec:
+  selector:
+    app: "pdserver-pod"
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: server-port
