@@ -1,38 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "pdclient"
+  name: pdclient
   labels:
-    name: "pdclient"
-    app: "pdrace"
+    name: pdclient
+    app: pdrace
 
 spec:
   selector:
     matchLabels:
-      service: "pdclient"
+      service: pdclient
   replicas: 1
   template:
     metadata:
-      name: "pdclient"
+      name: pdclient
       labels:
-        service: "pdclient"
+        service: pdclient
+        DD_SERVICE: pdclient
       annotations: 
         prometheus.io/scrape: "true"
-        DD_SERVICE: pdclient
+
 
     spec:
       containers:
         # next js client container
         - name: pdclient
-          image: ccdaniele/pdrace-client:qa-amd64
+          image: ccdaniele/pdrace-client:dev-amd64
           imagePullPolicy: Always
           ports:
             - name: client-port
               containerPort: 3002
           # resources:
           #   limits:
-          #     cpu: "10Gi"
-          #     memory: "10Gi"
+          #     cpu: 10Gi
+          #     memory: 10Gi
           env:
             - name: SERVER_HOST
               value: pdserver-svc.default.svc.cluster.local:3000
@@ -43,13 +44,14 @@ spec:
                 fieldRef:
                   fieldPath: status.hostIP    
 
---- 
+
+
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: pdclient-svc
 spec:
-  type: "NodePort"
   selector:
     service: "pdclient"
   ports:

@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdzendesk
+  labels:
+    name: pdzendesk
+    app: pdrace
+
+spec:
+  selector:
+    matchLabels:
+      service: pdzendesk
+  replicas: 1
+  template:
+    metadata:
+      name: pdzendesk
+      labels:
+        service: pdzendesk
+        DD_SERVICE: pdzendesk
+      annotations: 
+        prometheus.io/scrape: "true"
+
+
+    spec:
+      containers:
+        # next js client container
+        - name: pdzendesk
+          image: aldrickdev/zd_test:v0
+          imagePullPolicy: Always
+          env:
+
+            - name: SERVER_HOST
+              value: pdserver-svc.default.svc.cluster.local:3000
+            - name: USER_SRV_DOMAIN 
+              value: pdserver
+            - name: USER_SRV_PORT
+              value: "3000" 
+            - name: RMQ_DOMAIN
+              value: rabbitmq 
+            - name: RMQ_PORT
+              value: "5672"
+            - name: REDIS_DOMAIN
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_PASS
+              value: ""
+            - name: SERVER_HOST
+              value: pdserver-svc.default.svc.cluster.local:3000
+            - name: USER_SRV_DOMAIN 
+              value: pdserver
+            - name: USER_SRV_PORT
+              value: "3000" 
+            - name: RMQ_DOMAIN
+              value: rabbitmq 
+
+  
+
+            - name: RABBITMQ_CREDS
+              value: amqp://guest:guest@rabbitmq:5672
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP    
+        - name: rabbitmq
+          image: rabbitmq:3-management
+          env:
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdzendesk-svc
+spec:
+  selector:
+    service: "pdzendesk"
+  ports:
+  - port: 3002
+    targetPort: client-port

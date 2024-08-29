@@ -18,10 +18,24 @@ spec:
       name: postgresdb
       labels:
         service: postgresdb
+        DD_SERVICE: postgresdb
         pdcomponent: backend
       annotations: 
         prometheus.io/scrape: "true"
-        DD_SERVICE: postgresdb 
+        ad.datadoghq.com/postgresdb.checks: |
+              {
+                "postgres": {
+                  "init_config": {},
+                  "instances": [
+                    { "dbm": "true",
+                      "host": "%%host%%",
+                      "port":"5432",
+                      "username":"datadog",
+                      "password":"password"
+                    }
+                  ]
+                }
+              }       
     spec:
       containers:
         - name: postgresdb
@@ -31,9 +45,10 @@ spec:
             - name: db-port
               containerPort: 5432
           volumeMounts:
-            - mountPath: /var/lib/postgresql/
+            - mountPath: /var/local/aaa
               name: server-volume
-              subPath: data
+            - mountPath: /var/local/aaa/1.txt
+              name: serverfile
           env: 
             - name: PGDATA
               value: /var/lib/postgresql/data
@@ -47,9 +62,14 @@ spec:
               value: env:kubernetes
       volumes:
       - name: server-volume
-        persistentVolumeClaim:
-          claimName: server-pvclaim 
-        
+        hostPath:
+          # Ensure the file directory is created.
+          path: /var/local/aaa
+          type: DirectoryOrCreate
+      - name: serverfile
+        hostPath:
+          path: /var/local/aaa/1.txt
+          type: FileOrCreate        
 --- 
 apiVersion: v1
 kind: Service

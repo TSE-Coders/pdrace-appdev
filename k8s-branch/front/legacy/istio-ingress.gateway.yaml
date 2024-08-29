@@ -1,0 +1,33 @@
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: pdrace-gateway
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - $MY_INGRESS_GATEWAY_HOST
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: pdrace
+spec:
+  hosts:
+  - $MY_INGRESS_GATEWAY_HOST
+  gateways:
+  - pdrace-gateway.$NAMESPACE.svc.cluster.local
+  http:
+  - match:
+    - uri:
+        exact: /*
+    route:
+    - destination:
+        host: /
+        port:
+          number: 3002
