@@ -25,7 +25,7 @@ spec:
       containers:
         # next js client container
         - name: pdzendesk
-          image: aldrickdev/zd_test:v0
+          image: aldrickdev/zd_test:v0-alpine
           imagePullPolicy: Always
           env:
 

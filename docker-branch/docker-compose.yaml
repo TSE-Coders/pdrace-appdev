@@ -4,7 +4,7 @@ services:
 
   # Client service
   pdclient:
-    container_name: pdclient    
+    container_name: pdclient
     image: ccdaniele/pdrace-client:docker-v1-arm64-env
     labels:
       app: pdrace
@@ -22,7 +22,7 @@ services:
 
   # Server service
   pdserver:
-    container_name: pdserver    
+    container_name: pdserver
     image: ccdaniele/pdrace-server:docker-v1-arm64-env
     labels:
       app: pdrace
@@ -37,8 +37,8 @@ services:
       CLIENT_DOMAIN: pdclient
       QUEUE_DOMAIN: pdqueue
       RABBITMQ_DOMAIN: rabbitmq
-      DD_VERSION: v1  
-      SERVER_HOST: pdserver:3000  
+      DD_VERSION: v1
+      SERVER_HOST: pdserver:3000
     volumes:
       - shared_data:/shared_data
     networks:
@@ -51,14 +51,14 @@ services:
     labels:
       app: pdrace
       com.datadoghq.ad.logs: '[{"source": "postgres", "service": "pdserver"}]'
-    command: "postgres -c 'max_connections=500'" 
+    command: "postgres -c 'max_connections=500'"
     environment:
       ENV: development
       POSTGRES_DB: pdrace
       POSTGRES_USER: pdrace
       POSTGRES_PASSWORD: password
       DD_SERVICE: pdserver
-      DD_VERSION: v1 
+      DD_VERSION: v1
     volumes:
       - shared_data:/shared_data
     networks:
@@ -66,7 +66,7 @@ services:
 
   # Queue service 
   zendesk:
-    image: aldrickdev/zd_test:v0
+    image: aldrickdev/zd_test:v0-alpine
     container_name: pdqueue
     environment:
       ENV: development
@@ -81,7 +81,7 @@ services:
       REDIS_DB: 0
       REDIS_PASS: ""
       DD_SERVICE: pdqueue
-      DD_VERSION: v1  
+      DD_VERSION: v1
     networks:
       - pdrace-network
     depends_on:
@@ -90,10 +90,10 @@ services:
   #rabbitmq 
   event-broker:
     container_name: rabbitmq
-    image: rabbitmq:3-management   
+    image: rabbitmq:3-management
     environment:
       DD_SERVICE: pdqueue
-      DD_VERSION: v1     
+      DD_VERSION: v1
     env_file: env
     networks:
       - pdrace-network
@@ -107,7 +107,7 @@ services:
       DD_VERSION: v1
     networks:
       - pdrace-network
-  
+
   cache-dashboard:
     container_name: insight
     image: redislabs/redisinsight
@@ -117,10 +117,11 @@ services:
     ports:
       - "8001:8001"
     networks:
-      - pdrace-network 
+      - pdrace-network
 
 volumes:
   shared_data:
+
 
 networks:
   pdrace-network:
