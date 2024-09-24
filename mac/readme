@@ -1,0 +1,4 @@
+Monohost v1.0.0: 
+- git branch: monohost
+- Database: postgres
+- Datadog: Enabled
