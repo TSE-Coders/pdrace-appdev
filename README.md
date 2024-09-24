@@ -6,7 +6,7 @@
 
 pdRace is a FullStack application created by some Datadog's TSEs to connect and test Datadog features in a real and fun environment.
 
-The logic behind this is to create a weekly "Tse Pods Race" in which the Players (TSEs) will collect points to their Pods (Specs) with Events.
+The logic behind this is to create a weekly "TSE Pods Race" in which the Players (TSEs) will collect points to their Pods (Specs) with Events.
 
 These Events are day to day actions with points associated to them, example:
 
@@ -29,7 +29,7 @@ These Events are day to day actions with points associated to them, example:
 
 Architecture considerations :warning:
 
-If you are building this image in your local machine with a mac processor (ARM) but are *planning to use the image in a linux AMD* (most common in different cloud providers) you will need to include the [processor flag](https://docs.docker.com/build/building/multi-platform/#:~:text=When%20triggering%20a%20build%2C%20use,one%20platform%20at%20a%20time) **--platform=linux/amd64** to make it compatible with those processors
+If you are building this image in your local machine with an Apple silicon processor (ARM) but are *planning to use the image in a linux AMD* (most common in different cloud providers) you will need to include the [processor flag](https://docs.docker.com/build/building/multi-platform/#:~:text=When%20triggering%20a%20build%2C%20use,one%20platform%20at%20a%20time) **--platform=linux/amd64** to make it compatible with those processors
 
 Otherwise if you are plannig to run these images locally with docker in local host you can skip this flag. 
 
@@ -57,7 +57,7 @@ cd client
 
 2. The command below will use the **dockerfile** available in the directory to build the image. 
 ```
-docker build --platform=linux/amd64 -t ccdaniele/pdrace-client:docker-v1-amd64.
+docker build --platform=linux/amd64 -t ccdaniele/pdrace-client:docker-v1-amd64 .
 ```
 
 Before continuing let's take a look at what is happening here: 
